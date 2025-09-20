@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Guide Registration & Listing</title>
+<style>
+  body {
+    font-family: Arial;
+    background: url('images/guide-bg.jpg') no-repeat center/cover;
+    color: white;
+    padding: 20px;
+  }
+  h1 { text-align:center; color:#ffd700; margin-bottom:20px; }
+  .form-box, .listing-box {
+    background: rgba(0,0,0,0.7);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    max-width: 600px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  input, select, button {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius:6px;
+    border:none;
+  }
+  button { background: #ffd700; color:black; font-weight:bold; cursor:pointer; }
+  button:hover { background: orange; }
+  .card {
+    background: rgba(255,255,255,0.1);
+    padding: 15px;
+    margin: 10px 0;
+    border-radius:8px;
+  }
+  .card h2 { margin:0 0 5px 0; color:#ffd700; }
+</style>
+</head>
+<body>
+
+<h1>Guide Registration & Listing</h1>
+
+<div class="form-box">
+  <h2>Register as a Guide</h2>
+  <form id="guideForm">
+    <input type="text" id="name" placeholder="Full Name" required>
+    <select id="district" required>
+      <option value="">Select District</option>
+      <option>Bhubaneswar</option>
+      <option>Puri</option>
+      <option>Cuttack</option>
+      <option>Sambalpur</option>
+      <option>Balangir</option>
+      <option>Keonjhar</option>
+      <option>Koraput</option>
+      <option>Kalahandi</option>
+      <option>Ganjam</option>
+      <option>Rayagada</option>
+      <option>Bolangir</option>
+      <option>Jharsuguda</option>
+      <option>Mayurbhanj</option>
+      <option>Jajpur</option>
+      <option>Nuapada</option>
+      <option>Malkangiri</option>
+      <option>Bhadrak</option>
+      <option>Sundergarh</option>
+      <option>Nabarangpur</option>
+      <option>Kendrapara</option>
+      <option>Kendujhar</option>
+      <option>Jagatsinghpur</option>
+      <option>Dhenkanal</option>
+      <option>Khordha</option>
+      <option>Nayagarh</option>
+      <option>Deogarh</option>
+      <option>Baleshwar</option>
+      <option>Angul</option>
+      <option>Gajapati</option>
+      <option>Baragarh</option>
+    </select>
+    <input type="text" id="specialty" placeholder="Specialty (Temple, Food, Trekking)">
+    <input type="tel" id="phone" placeholder="Phone Number" required>
+    <input type="email" id="email" placeholder="Email (optional)">
+    <input type="number" id="experience" placeholder="Experience (Years)">
+    <button type="submit">Register</button>
+  </form>
+</div>
+
+<div class="listing-box">
+  <h2>Registered Guides</h2>
+  <select id="filterDistrict">
+    <option value="">-- Filter by District --</option>
+    <option>Bhubaneswar</option>
+    <option>Puri</option>
+    <option>Cuttack</option>
+    <option>Sambalpur</option>
+    <option>Balangir</option>
+    <option>Keonjhar</option>
+    <option>Koraput</option>
+    <option>Kalahandi</option>
+    <option>Ganjam</option>
+    <option>Rayagada</option>
+    <option>Bolangir</option>
+    <option>Jharsuguda</option>
+    <option>Mayurbhanj</option>
+    <option>Jajpur</option>
+    <option>Nuapada</option>
+    <option>Malkangiri</option>
+    <option>Bhadrak</option>
+    <option>Sundergarh</option>
+    <option>Nabarangpur</option>
+    <option>Kendrapara</option>
+    <option>Kendujhar</option>
+    <option>Jagatsinghpur</option>
+    <option>Dhenkanal</option>
+    <option>Khordha</option>
+    <option>Nayagarh</option>
+    <option>Deogarh</option>
+    <option>Baleshwar</option>
+    <option>Angul</option>
+    <option>Gajapati</option>
+    <option>Baragarh</option>
+  </select>
+  <div id="guideList"></div>
+</div>
+
+<script>
+function displayGuides(filter="") {
+  const guides = JSON.parse(localStorage.getItem("guides")) || [];
+  const guideList = document.getElementById("guideList");
+  const filtered = filter ? guides.filter(g => g.district === filter) : guides;
+
+  guideList.innerHTML = "";
+  if(filtered.length === 0) {
+    guideList.innerHTML = "<p>No guides available.</p>";
+    return;
+  }
+
+  filtered.forEach(g => {
+    guideList.innerHTML += `
+      <div class="card">
+        <h2>${g.name}</h2>
+        <p><strong>District:</strong> ${g.district}</p>
+        <p><strong>Specialty:</strong> ${g.specialty || 'N/A'}</p>
+        <p><strong>Experience:</strong> ${g.experience || 'N/A'} years</p>
+        <p><strong>Phone:</strong> ${g.phone}</p>
+        <p><strong>Email:</strong> ${g.email || 'N/A'}</p>
+      </div>
+    `;
+  });
+}
+
+// Handle registration
+document.getElementById("guideForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  const guide = {
+    name: document.getElementById("name").value,
+    district: document.getElementById("district").value,
+    specialty: document.getElementById("specialty").value,
+    phone: document.getElementById("phone").value,
+    email: document.getElementById("email").value,
+    experience: document.getElementById("experience").value
+  };
+  const guides = JSON.parse(localStorage.getItem("guides")) || [];
+  guides.push(guide);
+  localStorage.setItem("guides", JSON.stringify(guides));
+  alert("Guide Registered Successfully!");
+  document.getElementById("guideForm").reset();
+  displayGuides(); // Refresh list
+});
+
+// Filter guides by district
+document.getElementById("filterDistrict").addEventListener("change", function(){
+  displayGuides(this.value);
+});
+
+// Initial display
+displayGuides();
+</script>
+
+</body>
+</html>

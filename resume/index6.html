@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Hotels of Odisha</title>
+<style>
+  body {
+    font-family: Arial;
+    background-color: rgb(5, 96, 96);;
+    color:tomato;
+    padding: 20px;
+  }
+  h1 { text-align:center; color:#ffd700; margin-bottom:20px; }
+  select, input, button { padding:10px; margin:8px 0; border-radius:6px; border:none; width:100%; max-width:400px; display:block; margin-left:auto; margin-right:auto;}
+  button { background:#ffd700; color:black; font-weight:bold; cursor:pointer; transition:0.3s; }
+  button:hover { background: orange; }
+  .card { background: rgba(0,0,0,0.7); padding:15px; margin:10px 0; border-radius:10px; max-width:600px; margin-left:auto; margin-right:auto; }
+  .card h2 { color:#ffd700; margin-bottom:5px; }
+  .booking-form { background: rgba(0,0,0,0.8); padding:20px; border-radius:12px; margin-top:10px; }
+</style>
+</head>
+<body>
+
+<h1>Hotels of Odisha</h1>
+
+<select id="districtFilter">
+  <option value="">-- Select District --</option>
+  <option>Bhubaneswar</option>
+  <option>Puri</option>
+  <option>Cuttack</option>
+  <option>Sambalpur</option>
+  <option>Balangir</option>
+  <option>Keonjhar</option>
+  <option>Koraput</option>
+  <option>Kalahandi</option>
+  <option>Ganjam</option>
+  <option>Rayagada</option>
+  <option>Jharsuguda</option>
+  <option>Mayurbhanj</option>
+  <option>Jajpur</option>
+  <option>Nuapada</option>
+  <option>Malkangiri</option>
+  <option>Bhadrak</option>
+  <option>Sundergarh</option>
+  <option>Nabarangpur</option>
+  <option>Kendrapara</option>
+  <option>Kendujhar</option>
+  <option>Jagatsinghpur</option>
+  <option>Dhenkanal</option>
+  <option>Khordha</option>
+  <option>Nayagarh</option>
+  <option>Deogarh</option>
+  <option>Baleshwar</option>
+  <option>Angul</option>
+  <option>Gajapati</option>
+  <option>Baragarh</option>
+</select>
+
+<div id="hotelList"></div>
+
+<script>
+// Hotel Data for all 30 districts
+const hotels = [
+  {district:"Bhubaneswar", budget:"Hotel Excellency", mid:"Trident", luxury:"Mayfair Lagoon"},
+  {district:"Puri", budget:"Holiday Resort", mid:"Hans Coco Palms", luxury:"Mayfair Waves"},
+  {district:"Cuttack", budget:"Pramod Hotel", mid:"Hotel Grand Residency", luxury:"Fortune Park Sishmo"},
+  {district:"Sambalpur", budget:"Hotel Nilakantha", mid:"Sambalpur Residency", luxury:"Mayfair Courtyard"},
+  {district:"Balangir", budget:"Hotel Balangir Palace", mid:"Hotel Royal Court", luxury:"Hotel Surya Grande"},
+  {district:"Keonjhar", budget:"Hotel Keonjhar Inn", mid:"Mayfair Inn", luxury:"Keonjhar Grand Hotel"},
+  {district:"Koraput", budget:"Hotel Koraput Comfort", mid:"Koraput Residency", luxury:"Hotel Hilltop"},
+  {district:"Kalahandi", budget:"Hotel Kalahandi Stay", mid:"Kalahandi Residency", luxury:"Grand Kalahandi"},
+  {district:"Ganjam", budget:"Hotel Ganjam Comfort", mid:"Gopalpur Residency", luxury:"Mayfair Ganjam"},
+  {district:"Rayagada", budget:"Hotel Rayagada Inn", mid:"Rayagada Residency", luxury:"Hotel Hillview"},
+  {district:"Jharsuguda", budget:"Hotel Jharsuguda Comfort", mid:"Jharsuguda Residency", luxury:"Mayfair Jharsuguda"},
+  {district:"Mayurbhanj", budget:"Hotel Mayurbhanj Inn", mid:"Mayurbhanj Residency", luxury:"Mayurbhanj Grand"},
+  {district:"Jajpur", budget:"Hotel Jajpur Comfort", mid:"Jajpur Residency", luxury:"Jajpur Grand"},
+  {district:"Nuapada", budget:"Hotel Nuapada Stay", mid:"Nuapada Residency", luxury:"Nuapada Palace"},
+  {district:"Malkangiri", budget:"Hotel Malkangiri Inn", mid:"Malkangiri Residency", luxury:"Malkangiri Grand"},
+  {district:"Bhadrak", budget:"Hotel Bhadrak Comfort", mid:"Bhadrak Residency", luxury:"Bhadrak Grand"},
+  {district:"Sundergarh", budget:"Hotel Sundergarh Stay", mid:"Sundergarh Residency", luxury:"Sundergarh Palace"},
+  {district:"Nabarangpur", budget:"Hotel Nabarangpur Comfort", mid:"Nabarangpur Residency", luxury:"Nabarangpur Grand"},
+  {district:"Kendrapara", budget:"Hotel Kendrapara Inn", mid:"Kendrapara Residency", luxury:"Kendrapara Grand"},
+  {district:"Kendujhar", budget:"Hotel Kendujhar Comfort", mid:"Kendujhar Residency", luxury:"Kendujhar Grand"},
+  {district:"Jagatsinghpur", budget:"Hotel Jagatsinghpur Stay", mid:"Jagatsinghpur Residency", luxury:"Jagatsinghpur Palace"},
+  {district:"Dhenkanal", budget:"Hotel Dhenkanal Comfort", mid:"Dhenkanal Residency", luxury:"Dhenkanal Grand"},
+  {district:"Khordha", budget:"Hotel Khordha Stay", mid:"Khordha Residency", luxury:"Khordha Grand"},
+  {district:"Nayagarh", budget:"Hotel Nayagarh Comfort", mid:"Nayagarh Residency", luxury:"Nayagarh Palace"},
+  {district:"Deogarh", budget:"Hotel Deogarh Inn", mid:"Deogarh Residency", luxury:"Deogarh Grand"},
+  {district:"Baleshwar", budget:"Hotel Baleshwar Comfort", mid:"Baleshwar Residency", luxury:"Baleshwar Grand"},
+  {district:"Angul", budget:"Hotel Angul Stay", mid:"Angul Residency", luxury:"Angul Grand"},
+  {district:"Gajapati", budget:"Hotel Gajapati Comfort", mid:"Gajapati Residency", luxury:"Gajapati Grand"},
+  {district:"Baragarh", budget:"Hotel Baragarh Stay", mid:"Baragarh Residency", luxury:"Baragarh Palace"}
+];
+
+// Function to display hotels
+function showHotels(district){
+  const list = document.getElementById("hotelList");
+  const filtered = district ? hotels.filter(h=>h.district.toLowerCase()===district.toLowerCase()) : hotels;
+  list.innerHTML = "";
+
+  if(filtered.length===0){ list.innerHTML="<p>No hotels available.</p>"; return; }
+
+  filtered.forEach(h=>{
+    list.innerHTML += `
+      <div class="card">
+        <h2>${h.district} Hotels</h2>
+        <p><strong>Budget:</strong> ${h.budget}</p>
+        <p><strong>Mid-range:</strong> ${h.mid}</p>
+        <p><strong>Luxury:</strong> ${h.luxury}</p>
+        <div class="booking-form">
+          <h3>Book a Room</h3>
+          <input type="text" placeholder="Your Name" class="bookName">
+          <input type="email" placeholder="Your Email" class="bookEmail">
+          <input type="tel" placeholder="Your Phone" class="bookPhone">
+          <select class="bookHotelType">
+            <option value="">Select Room Type</option>
+            <option value="Budget">Budget</option>
+            <option value="Mid-range">Mid-range</option>
+            <option value="Luxury">Luxury</option>
+          </select>
+          <button onclick="bookHotel(this)">Book Now</button>
+        </div>
+      </div>
+    `;
+  });
+}
+
+// Handle hotel booking
+function bookHotel(btn){
+  const card = btn.closest(".card");
+  const name = card.querySelector(".bookName").value;
+  const email = card.querySelector(".bookEmail").value;
+  const phone = card.querySelector(".bookPhone").value;
+  const type = card.querySelector(".bookHotelType").value;
+  if(!name || !email || !phone || !type){
+    alert("Please fill all booking details!");
+    return;
+  }
+  alert('Thank you ${name}! Your ${type} room booking is confirmed for this hotel.');
+  card.querySelector(".bookName").value="";
+  card.querySelector(".bookEmail").value="";
+  card.querySelector(".bookPhone").value="";
+  card.querySelector(".bookHotelType").value="";
+}
+
+// Filter hotels by district
+document.getElementById("districtFilter").addEventListener("change", function(){
+  showHotels(this.value);
+});
+
+// Show all hotels by default
+showHotels();
+
+
+
+</script>
+
+
+</body>
+</html>

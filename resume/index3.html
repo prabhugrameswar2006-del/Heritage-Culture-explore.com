@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Odisha Heritage Explorer</title>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: #f4f4f9; color: #333; }
+    header { background: #004466; color: white; padding: 15px; text-align: center; }
+    .container { padding: 20px; text-align: center; }
+    select { padding: 10px; font-size: 16px; border-radius: 5px; }
+    .viewer-box {
+      display: none;
+      margin: 20px auto;
+      padding: 20px;
+      width: 90%;
+      max-width: 900px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0px 3px 8px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+    h2 { color: #004466; }
+    iframe, img {
+      width: 100%;
+      height: 300px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+    img { object-fit: cover; }
+  </style>
+</head>
+<body>
+
+
+<header>
+  <h1>Odisha AR-Based Heritage Explorer</h1>
+  <p>Explore heritage sites of all 30 districts of Odisha</p>
+</header>
+
+<div class="container">
+  <label for="districts"><b>Select a District:</b></label>
+  <select id="districts" onchange="loadHeritage()">
+    <option value="">-- Choose District --</option>
+    <option value="puri">Puri</option>
+    <option value="khordha">Khordha</option>
+    <option value="sambalpur">Sambalpur</option>
+    <option value="balangir">Balangir</option>
+    <option value="koraput">Koraput</option>
+    <option value="kalahandi">Kalahandi</option>
+    <option value="ganjam">Ganjam</option>
+    <option value="cuttack">Cuttack</option>
+    <option value="mayurbhanj">Mayurbhanj</option>
+    <option value="kendrapara">Kendrapara</option>
+    <option value="jagatsinghpur">Jagatsinghpur</option>
+    <option value="jharsuguda">Jharsuguda</option>
+    <option value="bargarh">Bargarh</option>
+    <option value="deogarh">Deogarh</option>
+    <option value="sundargarh">Sundargarh</option>
+    <option value="nayagarh">Nayagarh</option>
+    <option value="dhenkanal">Dhenkanal</option>
+    <option value="angul">Angul</option>
+    <option value="baudh">Baudh</option>
+    <option value="rayagada">Rayagada</option>
+    <option value="gajapati">Gajapati</option>
+    <option value="nuapada">Nuapada</option>
+    <option value="sonepur">Sonepur</option>
+    <option value="nabarangpur">Nabarangpur</option>
+    <option value="kendujhar">Kendujhar</option>
+    <option value="malkangiri">Malkangiri</option>
+    <option value="jajpur">Jajpur</option>
+    <option value="bhadrak">Bhadrak</option>
+    <option value="balasore">Balasore</option>
+  </select>
+</div>
+
+<div class="viewer-box" id="viewerBox">
+  <h2 id="heritageTitle"></h2>
+
+  <!-- Photo -->
+  <img id="heritagePhoto" src="" alt="Heritage Photo">
+
+  <!-- AR/3D Model Placeholder -->
+  <h3>🕶 AR Model (Future)</h3>
+  <model-viewer id="heritageModel" src="https://modelviewer.dev/shared-assets/models/Astronaut.glb"
+                alt="3D Heritage Model" auto-rotate camera-controls ar
+                style="width: 100%; height: 300px;">
+  </model-viewer>
+
+  <!-- Google Map Embed -->
+  <h3>📍 Location on Map</h3>
+  <iframe id="heritageMap" src="" allowfullscreen></iframe>
+
+  <!-- YouTube Video Embed -->
+  <h3>🎥 Watch Video</h3>
+  <iframe id="heritageVideo" src="" allowfullscreen></iframe>
+</div>
+<button onclick="goBack()"style="padding:10px 20px; font-size:16px;border-radius:8px; cursor:pointer;">go to project</button>
+
+<script>
+  // ✅ Full dataset for all 30 districts
+  const DATA = {
+    "puri": {"name":"Jagannath Temple, Puri","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Jagannath_Temple%2C_Puri.jpg","map":"https://www.google.com/maps?q=Jagannath+Temple+Puri&output=embed","video":"https://www.youtube.com/embed/hi5d8VbAeVc"},
+    "khordha":{"name":"Lingaraj Temple, Bhubaneswar","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Lingaraj_Temple_Bhubaneswar.jpg","map":"https://www.google.com/maps?q=Lingaraj+Temple+Bhubaneswar&output=embed","video":"https://www.youtube.com/embed/ECjPVsPnLnE"},
+    "sambalpur":{"name":"Hirakud Dam, Sambalpur","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Hirakud_dam.jpg","map":"https://www.google.com/maps?q=Hirakud+Dam+Sambalpur&output=embed","video":"https://www.youtube.com/embed/aaItjGNYIec"},
+    "balangir":{"name":"Harishankar Temple, Balangir","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Harishankar_Temple.jpg","map":"https://www.google.com/maps?q=Harishankar+Temple+Balangir&output=embed","video":"https://www.youtube.com/embed/GKyLDT5FaA4"},
+    "koraput":{"name":"Sabara Srikhetra, Koraput","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Sabara_Srikhetra_01.jpg","map":"https://www.google.com/maps?q=Sabara+Srikhetra+Koraput&output=embed","video":"https://www.youtube.com/embed/RtP5zYEz3fU"},
+    "kalahandi":{"name":"Bhawanipatna Palace, Kalahandi","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Palace_of_Kalahandi_King.jpg","map":"https://www.google.com/maps?q=Bhawanipatna+Kalahandi+Palace&output=embed","video":"https://www.youtube.com/embed/8cJZRh-R270"},
+    "ganjam":{"name":"Tara Tarini Temple, Ganjam","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Tara_Tarini_Temple_Ganjam.jpg","map":"https://www.google.com/maps?q=Tara+Tarini+Temple+Ganjam&output=embed","video":"https://www.youtube.com/embed/YBWCMzv1XgQ"},
+    "cuttack":{"name":"Barabati Fort, Cuttack","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Barabati_Fort_%2C_Cuttack_01.jpg","map":"https://www.google.com/maps?q=Barabati+Fort+Cuttack&output=embed","video":"https://www.youtube.com/embed/tlbJPokeqYA"},
+    "mayurbhanj":{"name":"Similipal National Park, Mayurbhanj","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Similipal.jpg","map":"https://www.google.com/maps?q=Similipal+National+Park+Baripada&output=embed","video":"https://www.youtube.com/embed/1dxUkpWZr0c"},
+    "kendrapara":{"name":"Bhitarkanika National Park, Kendrapara","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Bhitarkanika_National_Park.jpg","map":"https://www.google.com/maps?q=Bhitarkanika+National+Park+Kendrapara&output=embed","video":"https://www.youtube.com/embed/zOPd8FoXevM"},
+    "jagatsinghpur":{"name":"Sarala Temple, Jagatsinghpur","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Sarala_Temple.jpg","map":"https://www.google.com/maps?q=Sarala+Temple+Jagatsinghpur&output=embed","video":"https://www.youtube.com/embed/0D7kz5yLQVk"},
+    "jharsuguda":{"name":"Koilighughar Waterfall, Jharsuguda","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Koilighughar_Waterfall.jpg","map":"https://www.google.com/maps?q=Koilighughar+Waterfall+Jharsuguda&output=embed","video":"https://www.youtube.com/embed/z9L1Q9rEx2c"},
+    "bargarh":{"name":"Nrusinghnath Temple, Bargarh","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Nrusinghnath_Temple.jpg","map":"https://www.google.com/maps?q=Nrusinghnath+Temple+Bargarh&output=embed","video":"https://www.youtube.com/embed/fZ2hBdHxGqY"},
+    "deogarh":{"name":"Pradhanpat Waterfall, Deogarh","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Pradhanpat_Waterfall.jpg","map":"https://www.google.com/maps?q=Pradhanpat+Waterfall+Deogarh&output=embed","video":"https://www.youtube.com/embed/YL-Bbr_d0WY"},
+    "sundargarh":{"name":"Vedavyas Temple, Sundargarh","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Vedavyas_Temple.jpg","map":"https://www.google.com/maps?q=Vedavyas+Temple+Rourkela&output=embed","video":"https://www.youtube.com/embed/YhsL-3FtrpA"},
+    "nayagarh":{"name":"Satkosia Gorge, Nayagarh","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Satkosia_Gorge.jpg","map":"https://www.google.com/maps?q=Satkosia+Gorge+Nayagarh&output=embed","video":"https://www.youtube.com/embed/UfWZgWVG-pQ"},
+    "dhenkanal":{"name":"Kapilash Temple, Dhenkanal","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Kapilash_Temple.jpg","map":"https://www.google.com/maps?q=Kapilash+Temple+Dhenkanal&output=embed","video":"https://www.youtube.com/embed/SHmRO6hF9Zk"},
+    "angul":{"name":"Satkosia Tiger Reserve, Angul","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Satkosia_Tiger_Reserve.jpg","map":"https://www.google.com/maps?q=Satkosia+Tiger+Reserve+Angul&output=embed","video":"https://www.youtube.com/embed/Yy92yoQqL4M"},
+    "baudh":{"name":"Jagannath Temple, Baudh","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Boudh_Jagannath_Temple.jpg","map":"https://www.google.com/maps?q=Jagannath+Temple+Boudh&output=embed","video":"https://www.youtube.com/embed/x1nCjDA1ixY"},
+    "rayagada":{"name":"Majhighariani Temple, Rayagada","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Majhighariani_Temple_Rayagada.jpg","map":"https://www.google.com/maps?q=Majhighariani+Temple+Rayagada&output=embed","video":"https://www.youtube.com/embed/9JXn21xwW-A"},
+    "gajapati":{"name":"Mahendragiri Hills, Gajapati","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Mahendragiri_Hills_Odisha.jpg","map":"https://www.google.com/maps?q=Mahendragiri+Hills+Gajapati&output=embed","video":"https://www.youtube.com/embed/zrRWYymW16w"},
+    "nuapada":{"name":"Patalganga, Nuapada","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Patalganga_Nuapada.jpg","map":"https://www.google.com/maps?q=Patalganga+Nuapada&output=embed","video":"https://www.youtube.com/embed/m2-BB2w61cU"},
+    "sonepur":{"name":"Kosaleswar Temple, Sonepur","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Kosaleswar_Temple_Sonepur.jpg","map":"https://www.google.com/maps?q=Kosaleswar+Temple+Sonepur&output=embed","video":"https://www.youtube.com/embed/2iF4p_w8kFY"},
+    "nabarangpur":{"name":"Maa Pendrani Temple, Nabarangpur","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Pendrani_Temple_Nabarangpur.jpg","map":"https://www.google.com/maps?q=Pendrani+Temple+Nabarangpur&output=embed","video":"https://www.youtube.com/embed/fXt1cTnvc44"},
+    "kendujhar":{"name":"Maa Tarini Temple, Kendujhar","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Maa_Tarini_Temple_Kendujhar.jpg","map":"https://www.google.com/maps?q=Maa+Tarini+Temple+Kendujhar&output=embed","video":"https://www.youtube.com/embed/3ceppjaP05U"},
+    "malkangiri":{"name":"Balimela Dam, Malkangiri","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Balimela_Dam_Malkangiri.jpg","map":"https://www.google.com/maps?q=Balimela+Dam+Malkangiri&output=embed","video":"https://www.youtube.com/embed/z6Vg5GOT96I"},
+    "jajpur":{"name":"Biraja Temple, Jajpur","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Biraja_Temple_Jajpur.jpg","map":"https://www.google.com/maps?q=Biraja+Temple+Jajpur&output=embed","video":"https://www.youtube.com/embed/7knhmswphcE"},
+    "bhadrak":{"name":"Akhandalamani Temple, Bhadrak","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Akhandalamani_Temple_Bhadrak.jpg","map":"https://www.google.com/maps?q=Akhandalamani+Temple+Bhadrak&output=embed","video":"https://www.youtube.com/embed/cjoKx6k-gnM"},
+    "balasore":{"name":"Chandipur Beach, Balasore","photo":"https://commons.wikimedia.org/wiki/Special:FilePath/Chandipur_Beach_Balasore.jpg","map":"https://www.google.com/maps?q=Chandipur+Beach+Balasore&output=embed","video":"https://www.youtube.com/embed/6-b0Do4KivM"}
+  };
+
+  function loadHeritage() {
+    let district = document.getElementById("districts").value;
+    let viewer = document.getElementById("viewerBox");
+
+    if (district === "" || !DATA[district]) {
+      viewer.style.display = "none";
+      return;
+    }
+
+    viewer.style.display = "block";
+    document.getElementById("heritageTitle").innerText = DATA[district].name;
+    document.getElementById("heritagePhoto").src = DATA[district].photo;
+    document.getElementById("heritageMap").src = DATA[district].map;
+    document.getElementById("heritageVideo").src = DATA[district].video;
+  }
+  function goBack(){
+   window.location.href="index2.html";
+  }
+</script>
+
+</body>
+</html>
